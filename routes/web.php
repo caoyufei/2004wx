@@ -12,8 +12,11 @@
 */
 
 Route::get('/', function () {
+    // phpinfo();
     return view('welcome');
 });
 
 
-Route::get('/test/test1','TestController@index');
+Route::get('/index','TestController@index');
+
+
