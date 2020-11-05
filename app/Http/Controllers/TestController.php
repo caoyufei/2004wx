@@ -9,18 +9,31 @@ use Illuminate\Support\Facades\Redis;
 
 class TestController extends Controller
 {
-    public function index()
+    public  function wx()
     {
-       //$test=DB::table("test")->get();
-       //dd($test);
-
-        $key="key";
-        $set=Redis::set($key,"曹玉飞");
-        $get=Redis::get($key);
-        dd($get);
-
-
-
-
+        $echostr=request()->get('echostr','');
+        if($this->checkSignature && !empty($echostr)){
+            echo $echostr;
+        }
     }
+
+    private function checkSignature()
+{
+    $signature = $_GET["signature"];
+    $timestamp = $_GET["timestamp"];
+    $nonce = $_GET["nonce"];
+
+    $token = 'wx';
+    $tmpArr = array($token, $timestamp, $nonce);
+    sort($tmpArr, SORT_STRING);
+    $tmpStr = implode( $tmpArr );
+    $tmpStr = sha1( $tmpStr );
+
+    if( $tmpStr == $signature ){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 }
