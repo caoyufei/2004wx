@@ -17,9 +17,9 @@ Route::get('/', function () {
 });
 
 
-Route::get('/index','TestController@index');
-Route::get('/index1','TestController@index1');
-
+//微信接入
 Route::get('/test','TestController@wx');
+//获取access_token
 Route::get('/token','TestController@token');
-
+//推送事件
+Route::post('/test','TestController@wxEvent');

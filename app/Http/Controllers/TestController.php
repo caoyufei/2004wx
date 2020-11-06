@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Redis;
 
 class TestController extends Controller
 {
-
+    //微信接入
     public  function wx()
     {
         $echostr=request()->get('echostr','');
@@ -17,7 +17,6 @@ class TestController extends Controller
             echo $echostr;
         }
     }
-
     private function checkSignature()
     {
     $signature = $_GET["signature"];
@@ -38,6 +37,44 @@ class TestController extends Controller
 }
 
 
+//推送事件
+public function wxEvent()
+{
+    $signature = $_GET["signature"];
+    $timestamp = $_GET["timestamp"];
+    $nonce = $_GET["nonce"];
+
+    $token = 'wx';
+    $tmpArr = array($token, $timestamp, $nonce);
+    sort($tmpArr, SORT_STRING);
+    $tmpStr = implode( $tmpArr );
+    $tmpStr = sha1( $tmpStr );
+
+    if( $tmpStr == $signature ){
+       //验证通过
+
+        //1.接受数据
+        $xml_data=file_get_contents("php://input");
+
+        //记录日志
+        file_put_contents('wx_event.log',$xml_data);
+        die;
+
+        //2.把xml文本转化为数组或对象
+        $data=simplexml_load_file($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
+
+        $xml="<xml>
+                <ToUserName><![CDATA[toUser]]></ToUserName>
+                <FromUserName><![CDATA[fromUser]]></FromUserName>
+                <CreateTime>12345678</CreateTime>
+                <MsgType><![CDATA[text]]></MsgType>
+                <Content><![CDATA[你好]]></Content>
+            </xml>";
+    }else{
+        echo "";
+    }
+}
+
 
 //获取access_token
 public function token()
@@ -53,10 +90,6 @@ public function token()
     }
     $t=Redis::get($key);
     dd($t);
-
-
-
-
 
 }
 
