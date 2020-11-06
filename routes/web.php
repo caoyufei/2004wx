@@ -21,4 +21,5 @@ Route::get('/index','TestController@index');
 Route::get('/index1','TestController@index1');
 
 Route::get('/test','TestController@wx');
+Route::get('/token','TestController@token');
 
