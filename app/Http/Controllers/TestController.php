@@ -58,18 +58,19 @@ public function wxEvent()
 
         //记录日志
         file_put_contents('wx_event.log',$xml_data);
+        echo "";
         die;
 
         //2.把xml文本转化为数组或对象
-        $data=simplexml_load_file($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
+        //$data=simplexml_load_file($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
 
-        $xml="<xml>
-                <ToUserName><![CDATA[toUser]]></ToUserName>
-                <FromUserName><![CDATA[fromUser]]></FromUserName>
-                <CreateTime>12345678</CreateTime>
-                <MsgType><![CDATA[text]]></MsgType>
-                <Content><![CDATA[你好]]></Content>
-            </xml>";
+        // $xml="<xml>
+        //         <ToUserName><![CDATA[toUser]]></ToUserName>
+        //         <FromUserName><![CDATA[fromUser]]></FromUserName>
+        //         <CreateTime>12345678</CreateTime>
+        //         <MsgType><![CDATA[text]]></MsgType>
+        //         <Content><![CDATA[你好]]></Content>
+        //     </xml>";
     }else{
         echo "";
     }
