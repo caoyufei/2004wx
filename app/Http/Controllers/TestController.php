@@ -71,7 +71,8 @@ public function wxEvent()
                 $toUserName=$data->ToUserName;// 开发者
                 $FromUserName=$data->FromUserName;// 发送者
                 $time=time();
-                $msgtype="欢迎关注";
+                $msgtype="text";
+                $content = '欢迎关注';
                 $temlate="<xml>
                             <ToUserName><![CDATA[%s]]></ToUserName>
                             <FromUserName><![CDATA[%s]]></FromUserName>
@@ -79,7 +80,7 @@ public function wxEvent()
                             <MsgType><![CDATA[%s]]></MsgType>
                             <Event><![CDATA[%s]]></Event>
                         </xml>";
-                echo sprintf($temlate,$toUserName,$FromUserName,$time,$msgtype,$temlate);
+                echo sprintf($temlate,$toUserName,$FromUserName,$time,$msgtype,$content);
             }else{
                 if($data->Event=="unsubscribe"){
                     echo "";
