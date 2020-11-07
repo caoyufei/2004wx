@@ -69,6 +69,20 @@ public function wxEvent()
         if($data->MsgType=="Event"){
             file_put_contents('log.logs','1');
             if($data->Event=="subscribe"){
+                $fromUserName=$data->ToUserName;
+            $toUserName=$data->FromUserName;
+            $time=time();
+            $msgType="text";
+            $content="你好";
+            $temlate="<xml>
+                            <ToUserName><![CDATA[%s]]></ToUserName>
+                            <FromUserName><![CDATA[%s]]></FromUserName>
+                            <CreateTime>%s</CreateTime>
+                            <MsgType><![CDATA[%s]]></MsgType>
+                            <Content><![CDATA[%s]]></Content>
+                        </xml>";
+
+            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
                 $toUserName=$data->ToUserName;// 开发者
                 $FromUserName=$data->FromUserName;// 发送者
                 file_put_contents('log.logs',$FromUserName);
