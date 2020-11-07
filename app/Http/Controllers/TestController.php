@@ -17,23 +17,24 @@ class TestController extends Controller
             echo $echostr;
         }
     }
+
     private function checkSignature()
     {
-    $signature = $_GET["signature"];
-    $timestamp = $_GET["timestamp"];
-    $nonce = $_GET["nonce"];
+        $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];
 
-    $token = 'wx';
-    $tmpArr = array($token, $timestamp, $nonce);
-    sort($tmpArr, SORT_STRING);
-    $tmpStr = implode( $tmpArr );
-    $tmpStr = sha1( $tmpStr );
+        $token = 'wx';
+        $tmpArr = array($token, $timestamp, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $tmpStr = sha1( $tmpStr );
 
-    if( $tmpStr == $signature ){
-        return true;
-    }else{
-        return false;
-    }
+        if( $tmpStr == $signature ){
+            return true;
+        }else{
+            return false;
+        }
 }
 
 
@@ -62,15 +63,25 @@ public function wxEvent()
         die;
 
         //2.把xml文本转化为数组或对象
-        //$data=simplexml_load_file($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
+        $data=simplexml_load_file($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
 
-        // $xml="<xml>
-        //         <ToUserName><![CDATA[toUser]]></ToUserName>
-        //         <FromUserName><![CDATA[fromUser]]></FromUserName>
-        //         <CreateTime>12345678</CreateTime>
-        //         <MsgType><![CDATA[text]]></MsgType>
-        //         <Content><![CDATA[你好]]></Content>
-        //     </xml>";
+        //判断接受消息的类型
+        if($data->MsgType == "text"){
+            $fromUserName=$data->ToUserName;
+            $toUserName=$data->FromUserName;
+            $time=time();
+            $msgType="text";
+            $content="欢迎关注";
+            $temlate="<xml>
+                            <ToUserName><![CDATA[%s]]></ToUserName>
+                            <FromUserName><![CDATA[%s]]></FromUserName>
+                            <CreateTime>%s</CreateTime>
+                            <MsgType><![CDATA[%s]]></MsgType>
+                            <Content><![CDATA[%s]]></Content>
+                        </xml>";
+
+            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
+        }
     }else{
         echo "";
     }
@@ -91,7 +102,6 @@ public function token()
     }
     $t=Redis::get($key);
     dd($t);
-
 }
 
 }
