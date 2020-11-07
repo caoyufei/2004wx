@@ -64,6 +64,31 @@ public function wxEvent()
         $data=simplexml_load_string($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
 
         //判断接受消息的类型
+
+        //关注
+        if($data->MsgType=="Event"){
+            if($data->Event=="subscribe"){
+                $fromUserName=$data->ToUserName;
+                $toUserName=$data->FromUserName;
+                $time=time();
+                $msgtype="欢迎关注";
+                $temlate="<xml>
+                            <ToUserName><![CDATA[%s]]></ToUserName>
+                            <FromUserName><![CDATA[%s]]></FromUserName>
+                            <CreateTime>%s</CreateTime>
+                            <MsgType><![CDATA[%s]]></MsgType>
+                            <Event><![CDATA[%s]]></Event>
+                        </xml>";
+                echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgtype,$temlate);
+            }else{
+                if($data->Event=="unsubscribe"){
+                    echo "";
+                }
+            }
+        }
+
+
+        //回复文本消息
         if($data->MsgType == "text"){
             $fromUserName=$data->ToUserName;
             $toUserName=$data->FromUserName;
