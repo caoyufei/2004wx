@@ -65,6 +65,7 @@ public function wxEvent()
 
         //判断接受消息的类型
         //关注
+        file_put_contents('log.logs','2');
         if($data->MsgType=="Event"){
             file_put_contents('log.logs','1');
             if($data->Event=="subscribe"){
