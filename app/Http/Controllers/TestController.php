@@ -65,15 +65,13 @@ public function wxEvent()
 
         //判断接受消息的类型
         //关注
-        file_put_contents('log.logs','2');
         if($data->MsgType=="event"){
-            file_put_contents('log.logs','1');
             if($data->Event=="subscribe"){
-                $fromUserName=$data->ToUserName;
+            $fromUserName=$data->ToUserName;
             $toUserName=$data->FromUserName;
             $time=time();
             $msgType="text";
-            $content="你好";
+            $content="欢迎关注";
             $temlate="<xml>
                             <ToUserName><![CDATA[%s]]></ToUserName>
                             <FromUserName><![CDATA[%s]]></FromUserName>
@@ -83,20 +81,6 @@ public function wxEvent()
                         </xml>";
 
             echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
-                $toUserName=$data->ToUserName;// 开发者
-                $FromUserName=$data->FromUserName;// 发送者
-                file_put_contents('log.logs',$FromUserName);
-                $time=time();
-                $msgtype="text";
-                $content = '欢迎关注';
-                $temlate="<xml>
-                            <ToUserName><![CDATA[%s]]></ToUserName>
-                            <FromUserName><![CDATA[%s]]></FromUserName>
-                            <CreateTime>%s</CreateTime>
-                            <MsgType><![CDATA[%s]]></MsgType>
-                            <Event><![CDATA[%s]]></Event>
-                        </xml>";
-                echo sprintf($temlate,$toUserName,$FromUserName,$time,$msgtype,$content);
             }else{
                 if($data->Event=="unsubscribe"){
                     echo "";
