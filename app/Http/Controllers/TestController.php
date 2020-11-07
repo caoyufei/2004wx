@@ -61,7 +61,7 @@ public function wxEvent()
         file_put_contents('wx_event.log',$xml_data);
 
         //2.把xml文本转化为数组或对象
-        $data=simplexml_load_string($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
+        $data=simplexml_load_string($xml_data);
 
         //判断接受消息的类型
         //关注
