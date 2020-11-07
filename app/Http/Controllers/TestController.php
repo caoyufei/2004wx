@@ -68,6 +68,7 @@ public function wxEvent()
         //关注
         if($data->MsgType=="Event"){
             if($data->Event=="subscribe"){
+                file_put_contents('log.logs','111');
                 $toUserName=$data->ToUserName;// 开发者
                 $FromUserName=$data->FromUserName;// 发送者
                 $time=time();
