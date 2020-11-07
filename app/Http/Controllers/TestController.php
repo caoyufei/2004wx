@@ -59,8 +59,6 @@ public function wxEvent()
 
         //记录日志
         file_put_contents('wx_event.log',$xml_data);
-        echo "";
-        die;
 
         //2.把xml文本转化为数组或对象
         $data=simplexml_load_file($xml_data,'SimpleXMLElement',LIBXML_NOCDATA);
@@ -82,6 +80,7 @@ public function wxEvent()
 
             echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
         }
+        echo "";
     }else{
         echo "";
     }
