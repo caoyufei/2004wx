@@ -68,8 +68,8 @@ public function wxEvent()
         //关注
         if($data->MsgType=="Event"){
             if($data->Event=="subscribe"){
-                $fromUserName=$data->ToUserName;
-                $toUserName=$data->FromUserName;
+                $toUserName=$data->ToUserName;// 开发者
+                $FromUserName=$data->FromUserName;// 发送者
                 $time=time();
                 $msgtype="欢迎关注";
                 $temlate="<xml>
@@ -79,7 +79,7 @@ public function wxEvent()
                             <MsgType><![CDATA[%s]]></MsgType>
                             <Event><![CDATA[%s]]></Event>
                         </xml>";
-                echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgtype,$temlate);
+                echo sprintf($temlate,$toUserName,$FromUserName,$time,$msgtype,$temlate);
             }else{
                 if($data->Event=="unsubscribe"){
                     echo "";
