@@ -71,7 +71,7 @@ public function wxEvent()
             $toUserName=$data->FromUserName;
             $time=time();
             $msgType="text";
-            $content="欢迎关注";
+            $content="你好";
             $temlate="<xml>
                             <ToUserName><![CDATA[%s]]></ToUserName>
                             <FromUserName><![CDATA[%s]]></FromUserName>
