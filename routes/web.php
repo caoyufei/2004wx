@@ -22,7 +22,7 @@ Route::get('/test','TestController@wx');
 //获取access_token
 Route::get('/token','TestController@token');
 //推送事件
-Route::post('/test','TestController@wxEvent');
+Route::post('/wx','TestController@wxEvent');
 Route::get('/weath','TestController@weath');
 
 
