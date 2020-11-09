@@ -3,28 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use DB;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redis;
-
-
-class TestController extends Controller
+class TextController extends Controller
 {
-    //微信接入
-    public  function wx()
-    {
+    //连接
+    public function wx(){
         $echostr=request()->get('echostr','');
-        if($this->checkSignature && !empty($echostr)){
+        if($this->checkSignature() && !empty($echostr)){
             echo $echostr;
         }
     }
-
     private function checkSignature()
     {
         $signature = $_GET["signature"];
         $timestamp = $_GET["timestamp"];
         $nonce = $_GET["nonce"];
 
-        $token = 'wx';
+        $token = "wx";
         $tmpArr = array($token, $timestamp, $nonce);
         sort($tmpArr, SORT_STRING);
         $tmpStr = implode( $tmpArr );
@@ -35,154 +31,131 @@ class TestController extends Controller
         }else{
             return false;
         }
-}
+    }
+    function wxEvent()
+    {
+        $signature = $_GET["signature"];
+        $timestamp = $_GET["timestamp"];
+        $nonce = $_GET["nonce"];
 
-
-//推送事件
-public function wxEvent()
-{
-    $signature = $_GET["signature"];
-    $timestamp = $_GET["timestamp"];
-    $nonce = $_GET["nonce"];
-
-    $token = 'wx';
-    $tmpArr = array($token, $timestamp, $nonce);
-    sort($tmpArr, SORT_STRING);
-    $tmpStr = implode( $tmpArr );
-    $tmpStr = sha1( $tmpStr );
-
-    if( $tmpStr == $signature ){
-       //验证通过
-
-        //1.接受数据
-        $xml_data=file_get_contents("php://input");
-
-        //记录日志
-        file_put_contents('wx_event.log',$xml_data);
-
-        //2.把xml文本转化为数组或对象
-        $data=simplexml_load_string($xml_data);
-
-        //判断接受消息的类型
-        //关注
-        if($data->MsgType=="event"){
-            if($data->Event=="subscribe"){
-            $fromUserName=$data->ToUserName;
-            $toUserName=$data->FromUserName;
-            $time=time();
-            $msgType="text";
-            $content="欢迎关注";
-            $temlate="<xml>
-                            <ToUserName><![CDATA[%s]]></ToUserName>
-                            <FromUserName><![CDATA[%s]]></FromUserName>
-                            <CreateTime>%s</CreateTime>
-                            <MsgType><![CDATA[%s]]></MsgType>
-                            <Content><![CDATA[%s]]></Content>
-                        </xml>";
-
-            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
-            }else{
-                if($data->Event=="unsubscribe"){
-                    echo "";
+        $token = "wx";
+        $tmpArr = array($token, $timestamp, $nonce);
+        sort($tmpArr, SORT_STRING);
+        $tmpStr = implode( $tmpArr );
+        $tmpStr = sha1( $tmpStr );
+        //关注成功回复
+        if( $tmpStr == $signature ){
+            //接受数据
+            $xml_data=file_get_contents('php://input');
+            file_put_contents('wx_event.log ',$xml_data);
+            $data=simplexml_load_string($xml_data);
+            if ($data->MsgType=='event'){
+                if ($data->Event=='subscribe'){
+                    $Content ="欢迎关注";
+                    $result = $this->infocodl($data,$Content);
+                    return $result;
                 }
             }
+            //回复天气
+            $arr=['天气','天气。','天气,'];
+            if($data->Content==$arr[array_rand($arr)]){
+                $Content = $this->getNew();
+                $result = $this->infocodl($data,$Content);
+                return $result;
+            }
+
+            echo "";
+        }else{
+            echo "";
         }
-
-        if($data->Content=="天气")
-        {
-            $Content=$this->weath();
-            $fromUserName=$data->ToUserName;
-            $toUserName=$data->FromUserName;
-            $time=time();
-            $msgType="text";
-            $temlate="<xml>
-                        <ToUserName><![CDATA[%s]]></ToUserName>
-                        <FromUserName><![CDATA[%s]]></FromUserName>
-                        <CreateTime>%s</CreateTime>
-                        <MsgType><![CDATA[%s]]></MsgType>
-                        <Content><![CDATA[%s]]></Content>
-                    </xml>";
-
-            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
+        //被动回复消息
+        if($tmpStr == $signature){
+            $xml_data=file_get_contents('php://input');
+            file_put_contents('wx_event.log ',$xml_data);
+            $data=simplexml_load_string($xml_data);
+            if($data->MsgType=='text'){
+                    +$array=['你好呀','祝你今天运气爆棚','斯特姆光线','祝你早日找到你的另一半','嘿嘿嘿','泰罗'];
+                    $Content =$array[array_rand($array)];
+                    $result = $this->infocodl($data,$Content);
+                    return $result;
+            }
         }
-
-
-        //回复文本消息
-        if($data->MsgType == "text"){
-            $fromUserName=$data->ToUserName;
-            $toUserName=$data->FromUserName;
-            $time=time();
-            $msgType="text";
-            $content="你好";
-            $temlate="<xml>
-                            <ToUserName><![CDATA[%s]]></ToUserName>
-                            <FromUserName><![CDATA[%s]]></FromUserName>
-                            <CreateTime>%s</CreateTime>
-                            <MsgType><![CDATA[%s]]></MsgType>
-                            <Content><![CDATA[%s]]></Content>
-                        </xml>";
-
-            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
-        }
-        echo "";
-    }else{
-        echo "";
     }
-}
-
-    public function weath()
+    //接收toent
+    public function token()
     {
+        //dd($token);
+        $key="access_token";
+        if(empty(Redis::get($key))){
+            $token="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".env('WX_APPID')."&secret=".env('WX_SECRET')."";            $api = file_get_contents($token);
+            $api = json_decode($api);
+            // dd($api);die;
+            $token = $api->access_token;
+            Redis::setex($key,7200,$token);
+        }
+        $dd=Redis::get($key);
+        dd($dd);
+    }
+    //封装回复方法
+    public function infocodl($postarray,$Content)
+    {
+        $ToUserName=$postarray->FromUserName;//接收对方账号
+        $FromUserName=$postarray->ToUserName;//接收开发者微信
+        file_put_contents('log.logs',$ToUserName);
+
+        $time=time();//接受时间
+        $text='text';//数据类型
+        $ret="<xml>
+                <ToUserName><![CDATA[%s]]></ToUserName>
+                <FromUserName><![CDATA[%s]]></FromUserName>
+                <CreateTime>%s</CreateTime>
+                <MsgType><![CDATA[%s]]></MsgType>
+                <Content><![CDATA[%s]]></Content>
+            </xml>";
+        echo sprintf($ret,$ToUserName,$FromUserName,$time,$text,$Content);
+    }
+    //调用天气
+    public function getNew(){
         $key='3b478800e7184e6e9f6a0f5321086107';
         $url = "https://devapi.qweather.com/v7/weather/now?location=101010100&key=$key&gzip=n";
-        $res=$this->curl($url);
-        $data=json_decode($res,true);
-        $res1=$data['now'];
-        $res2=implode(',',$res1);
-        // dd($res2);
-        return $res2;
+        $red = $this->curl($url);
+        $red= json_decode($red,true);
+        //dd($red);
+        $rea = $red['now'];
+        $rea=implode(',',$rea);
+        //dd($rea);
+        return $rea;
+        //echo $red;
     }
-
-//获取access_token
-public function token()
-{
-    $key="access_token";
-    if(empty(Redis::get($key)))
-    {
-        $token="https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=".env('WX_APPID')."&secret=".env('WX_SECRET')."";
-        $api=file_get_contents($token);
-        $data=json_decode($api);
-        $token=$data->access_token;
-        Redis::setex($key,7200,$token);
+    //调用接口方法
+    public function curl($url,$header="",$content=[]){
+        $ch = curl_init(); //初始化CURL句柄
+        if(substr($url,0,5)=="https"){
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,true);
+        }
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER,true); //字符串类型打印
+         curl_setopt($ch, CURLOPT_URL, $url); //设置请求的URL
+        if($header){
+            curl_setopt ($ch, CURLOPT_HTTPHEADER,$header);
+        }
+        if($content){
+            curl_setopt ($ch, CURLOPT_POST,true);
+            curl_setopt ($ch, CURLOPT_POSTFIELDS,http_build_query($content));
+        }
+        //执行
+        $output = curl_exec($ch);
+        if($error=curl_error($ch)){
+            die($error);
+        }
+        //关闭
+        curl_close($ch);
+        return $output;
     }
-    $t=Redis::get($key);
-    dd($t);
-}
-
-//调用接口方法
-public function curl($url,$header="",$content=[]){
-    $ch = curl_init(); //初始化CURL句柄
-    if(substr($url,0,5)=="https"){
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,true);
-    }
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER,true); //字符串类型打印
-     curl_setopt($ch, CURLOPT_URL, $url); //设置请求的URL
-    if($header){
-        curl_setopt ($ch, CURLOPT_HTTPHEADER,$header);
-    }
-    if($content){
-        curl_setopt ($ch, CURLOPT_POST,true);
-        curl_setopt ($ch, CURLOPT_POSTFIELDS,http_build_query($content));
-    }
-    //执行
-    $output = curl_exec($ch);
-    if($error=curl_error($ch)){
-        die($error);
-    }
-    //关闭
-    curl_close($ch);
-    return $output;
 }
 
 
-}
+
+
+
+
