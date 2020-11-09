@@ -18,11 +18,11 @@ Route::get('/', function () {
 
 
 //微信接入
-Route::get('/wx','TestController@wx');
+Route::get('/test','TestController@wx');
 //获取access_token
 Route::get('/token','TestController@token');
 //推送事件
-Route::post('/wx','TestController@wxEvent');
+Route::post('/test','TestController@wxEvent');
 Route::get('/weath','TestController@weath');
 
 
