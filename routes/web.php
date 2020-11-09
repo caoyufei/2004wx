@@ -22,4 +22,4 @@ Route::get('/test','TestController@wx');
 //获取access_token
 Route::get('/token','TestController@token');
 //推送事件
-Route::post('/wx','TestController@wxEvent');
+Route::match(['get','post'],'/wx','TestController@wxEvent');
