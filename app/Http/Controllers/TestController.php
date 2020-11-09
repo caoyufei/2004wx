@@ -60,22 +60,19 @@ public function wxEvent()
                 }
             }
         }
-
-
         //回复文本消息
-        if( $tmpStr == $signature ){
-            $xml_data=file_get_contents('php://input');
-            file_get_contents('wx_event.log',$xml_data);
-            $data=simplexml_load_string($xml_data);
-            if($data->MsgType == "text"){
-                $Content="wdnmd";
-                $resurn=$this->nodeInfo($data,$Content);
-                return $resurn;
-            }
-            echo "";
-        }else{
-            echo "";
+    }
+    if( $tmpStr == $signature ){
+        $xml_data=file_get_contents('php://input');
+        $data=simplexml_load_string($xml_data);
+        if($data->MsgType == "text"){
+            $Content="wdnmd";
+            $resurn=$this->nodeInfo($data,$Content);
+            return $resurn;
         }
+        echo "";
+    }else{
+        echo "";
     }
 
     //回复图片
