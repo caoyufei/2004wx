@@ -52,6 +52,10 @@ public function wxEvent()
             $result = $this->nodeInfo($data,$Content);
             return $result;
         }
+        echo "";
+    }else{
+        echo"";
+
         //回复文本消息
     }
     if( $tmpStr == $signature ){
