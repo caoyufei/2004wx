@@ -93,7 +93,7 @@ public function token()
     {
             $fromUserName=$data->ToUserName;
             $toUserName=$data->FromUserName;
-            file_get_contents('log.logs',$toUserName);
+            file_put_contents('log.logs',$toUserName);
             $time=time();
             $msgType="text";
             $temlate="<xml>
