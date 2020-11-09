@@ -53,7 +53,7 @@ public function wxEvent()
 
     if( $tmpStr == $signature ){
        //验证通过
-
+        $this->wx();
         //1.接受数据
         $xml_data=file_get_contents("php://input");
 
@@ -107,7 +107,6 @@ public function wxEvent()
             echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
         }
         echo "";
-        $this->wx();
     }else{
         echo "";
     }
