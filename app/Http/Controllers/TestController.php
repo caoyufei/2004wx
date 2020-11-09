@@ -49,13 +49,20 @@ public function wxEvent()
                 }
             }
         }
+        //回复天气
+        $arr=['天气','天气。','天气,'];
+        if($data->Content==$arr[array_rand($arr)]){
+            $Content = $this->getNew();
+            $result = $this->nodeInfo($data,$Content);
+            return $result;
+        }
         //回复文本消息
     }
     if( $tmpStr == $signature ){
         $xml_data=file_get_contents('php://input');
         $data=simplexml_load_string($xml_data);
         if($data->MsgType == "text"){
-            $Content="wdnmd";
+            $Content="你好    弟弟";
             $resurn=$this->nodeInfo($data,$Content);
             return $resurn;
         }
@@ -94,5 +101,42 @@ public function token()
                         </xml>";
 
             echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$Content);
+    }
+    public function getNew(){
+        $key='3b478800e7184e6e9f6a0f5321086107';
+        $url = "https://devapi.qweather.com/v7/weather/now?location=101010100&key=$key&gzip=n";
+        $red = $this->curl($url);
+        $red= json_decode($red,true);
+        //dd($red);
+        $rea = $red['now'];
+        $rea=implode(',',$rea);
+        //dd($rea);
+        return $rea;
+        //echo $red;
+    }
+     //调用接口方法
+    public function curl($url,$header="",$content=[]){
+        $ch = curl_init(); //初始化CURL句柄
+        if(substr($url,0,5)=="https"){
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,true);
+        }
+          curl_setopt($ch, CURLOPT_RETURNTRANSFER,true); //字符串类型打印
+         curl_setopt($ch, CURLOPT_URL, $url); //设置请求的URL
+        if($header){
+            curl_setopt ($ch, CURLOPT_HTTPHEADER,$header);
+        }
+        if($content){
+            curl_setopt ($ch, CURLOPT_POST,true);
+            curl_setopt ($ch, CURLOPT_POSTFIELDS,http_build_query($content));
+        }
+        //执行
+        $output = curl_exec($ch);
+        if($error=curl_error($ch)){
+            die($error);
+        }
+        //关闭
+        curl_close($ch);
+        return $output;
     }
 }
