@@ -107,6 +107,7 @@ public function wxEvent()
             echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
         }
         echo "";
+        $this->wx();
     }else{
         echo "";
     }
