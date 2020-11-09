@@ -23,3 +23,11 @@ Route::get('/test','TestController@wx');
 Route::get('/token','TestController@token');
 //推送事件
 Route::post('/wx','TestController@wxEvent');
+Route::get('/weath','TestController@weath');
+
+
+//练习
+Route::get('/test1','Test1Controller@test1');
+Route::post('/test2','Test1Controller@test2');
+
+
