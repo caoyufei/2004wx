@@ -43,10 +43,6 @@ public function wxEvent()
                 $Content="关注成功";
                 $resurn=$this->nodeInfo($data,$Content);
                 return $resurn;
-            }else{
-                if($data->Event=="unsubscribe"){
-                    echo "";
-                }
             }
         }
         //回复天气
