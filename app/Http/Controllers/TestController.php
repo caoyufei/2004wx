@@ -70,19 +70,7 @@ public function wxEvent()
             $resurn=$this->nodeInfo($data,$Content);
             return $resurn;
         }
-        echo "";
-    }else{
-        echo "";
     }
-
-    //回复图片
-    if($data->MsgType == "image"){
-        $fromUserName=$data->ToUserName;
-        $toUserName=$data->FromUserName;
-        $time=time();
-        $msgtype="image";
-    }
-
 }
 
 
