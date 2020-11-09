@@ -88,7 +88,6 @@ public function wxEvent()
             }
         }
 
-        if($data->)
 
         //回复文本消息
         if($data->MsgType == "text"){
@@ -111,19 +110,17 @@ public function wxEvent()
     }else{
         echo "";
     }
+
+    //回复图片
+    if($data->MsgType == "image"){
+        $fromUserName=$data->ToUserName;
+        $toUserName=$data->FromUserName;
+        $time=time();
+        $msgtype="image";
+    }
+
 }
 
-    public function weath()
-    {
-        $key='3b478800e7184e6e9f6a0f5321086107';
-        $url = "https://devapi.qweather.com/v7/weather/now?location=101010100&key=$key&gzip=n";
-        $res=$this->curl($url);
-        $data=json_decode($res,true);
-        $res1=$data['now'];
-        $res2=implode(',',$res1);
-        // dd($res2);
-        return $res2;
-    }
 
 //获取access_token
 public function token()
@@ -140,32 +137,5 @@ public function token()
     $t=Redis::get($key);
     dd($t);
 }
-
-//调用接口方法
-public function curl($url,$header="",$content=[]){
-    $ch = curl_init(); //初始化CURL句柄
-    if(substr($url,0,5)=="https"){
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-        //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,true);
-    }
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER,true); //字符串类型打印
-     curl_setopt($ch, CURLOPT_URL, $url); //设置请求的URL
-    if($header){
-        curl_setopt ($ch, CURLOPT_HTTPHEADER,$header);
-    }
-    if($content){
-        curl_setopt ($ch, CURLOPT_POST,true);
-        curl_setopt ($ch, CURLOPT_POSTFIELDS,http_build_query($content));
-    }
-    //执行
-    $output = curl_exec($ch);
-    if($error=curl_error($ch)){
-        die($error);
-    }
-    //关闭
-    curl_close($ch);
-    return $output;
-}
-
 
 }
