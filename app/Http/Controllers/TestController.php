@@ -40,20 +40,9 @@ public function wxEvent()
         //关注
         if($data->MsgType=="event"){
             if($data->Event=="subscribe"){
-            $fromUserName=$data->ToUserName;
-            $toUserName=$data->FromUserName;
-            $time=time();
-            $msgType="text";
-            $content="欢迎关注";
-            $temlate="<xml>
-                            <ToUserName><![CDATA[%s]]></ToUserName>
-                            <FromUserName><![CDATA[%s]]></FromUserName>
-                            <CreateTime>%s</CreateTime>
-                            <MsgType><![CDATA[%s]]></MsgType>
-                            <Content><![CDATA[%s]]></Content>
-                        </xml>";
-
-            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
+                $Content="关注成功";
+                $resurn=$this->nodeInfo($data,$Content);
+                return $resurn;
             }else{
                 if($data->Event=="unsubscribe"){
                     echo "";
