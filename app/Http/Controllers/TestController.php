@@ -63,25 +63,19 @@ public function wxEvent()
 
 
         //回复文本消息
-        if($data->MsgType == "text"){
-            $fromUserName=$data->ToUserName;
-            $toUserName=$data->FromUserName;
-            $time=time();
-            $msgType="text";
-            $content="你好";
-            $temlate="<xml>
-                            <ToUserName><![CDATA[%s]]></ToUserName>
-                            <FromUserName><![CDATA[%s]]></FromUserName>
-                            <CreateTime>%s</CreateTime>
-                            <MsgType><![CDATA[%s]]></MsgType>
-                            <Content><![CDATA[%s]]></Content>
-                        </xml>";
-
-            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$content);
+        if( $tmpStr == $signature ){
+            $xml_data=file_get_contents('php://input');
+            file_get_contents('wx_event.log',$xml_data);
+            $data=simplexml_load_string($xml_data);
+            if($data->MsgType == "text"){
+                $Content="wdnmd";
+                $resurn=$this->nodeInfo($data,$Content);
+                return $resurn;
+            }
+            echo "";
+        }else{
+            echo "";
         }
-        echo "";
-    }else{
-        echo "";
     }
 
     //回复图片
@@ -110,5 +104,21 @@ public function token()
     $t=Redis::get($key);
     dd($t);
 }
+    public function nodeInfo($data,$Content)
+    {
+            $fromUserName=$data->ToUserName;
+            $toUserName=$data->FromUserName;
+            file_get_contents('log.logs',$toUserName);
+            $time=time();
+            $msgType="text";
+            $temlate="<xml>
+                            <ToUserName><![CDATA[%s]]></ToUserName>
+                            <FromUserName><![CDATA[%s]]></FromUserName>
+                            <CreateTime>%s</CreateTime>
+                            <MsgType><![CDATA[%s]]></MsgType>
+                            <Content><![CDATA[%s]]></Content>
+                        </xml>";
 
+            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$Content);
+    }
 }
