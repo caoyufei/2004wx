@@ -52,7 +52,7 @@ public function wxEvent()
         if($data->Content=='天气'){
             $Content = $this->getNew();
             $result = $this->nodeInfo($data,$Content);
-            return $result;
+            echo  $result;
         }
 
 
