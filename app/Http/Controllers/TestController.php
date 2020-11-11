@@ -24,7 +24,7 @@ public function wxEvent()
     $tmpStr = sha1( $tmpStr );
     $echostr=request()->get('echostr','');
     if(!empty($echostr)){
-        echo $echostr;die;
+        echo $echostr;//die;
     }
     if( $tmpStr == $signature ){
        //验证通过
