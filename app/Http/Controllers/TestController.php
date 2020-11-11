@@ -131,7 +131,7 @@ public function token()
         $rea = $red['now'];
         $rea=implode(',',$rea);
         //dd($rea);
-        echo  $rea;
+        return  $rea;
         //echo $red;
     }
 
