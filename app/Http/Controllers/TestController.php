@@ -46,12 +46,17 @@ public function wxEvent()
                 return $resurn;
             }
         }
+
+
         //回复天气
         if($data->Content=='天气'){
             $Content = $this->getNew();
             $result = $this->nodeInfo($data,$Content);
             return $result;
         }
+
+
+
         echo "";
     }else{
         echo"";
@@ -94,14 +99,13 @@ public function token()
             $time=time();
             $msgType="text";
             $temlate="<xml>
-                            <ToUserName><![CDATA[%s]]></ToUserName>
-                            <FromUserName><![CDATA[%s]]></FromUserName>
-                            <CreateTime>%s</CreateTime>
-                            <MsgType><![CDATA[%s]]></MsgType>
-                            <Content><![CDATA[%s]]></Content>
-                        </xml>";
-
-            echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$Content);
+                            <ToUserName><![CDATA[".$toUserName."]]></ToUserName>
+                            <FromUserName><![CDATA[".$fromUserName."]]></FromUserName>
+                            <CreateTime>".time()."</CreateTime>
+                            <MsgType><![CDATA[text]]></MsgType>
+                            <Content><![CDATA[".$Content."]]></Content>
+                      </xml>";
+            echo $temlate;
     }
 
 
@@ -185,47 +189,36 @@ public function token()
                         [
                         "name"=>"娱乐",
                         "sub_button"=>[
-                        [
-                        "type"=>"view",
-                        "name"=>"视频",
-                        "url"=>"https://www.baidu.com/"
-                        ],
-                        [
-                        "type"=>"view",
-                        "name"=>"音乐",
-                        "url"=>"https://www.baidu.com/"
-                        ]
+                            [
+                            "type"=>"view",
+                            "name"=>"视频",
+                            "url"=>"https://www.baidu.com/"
+                            ],
+                            [
+                            "type"=>"view",
+                            "name"=>"音乐",
+                            "url"=>"https://www.baidu.com/"
+                            ]
                         ]
                         ],
 
                 [
                 "name"=>"学习",
                     "sub_button"=>[
-                    [
-                    "type"=>"view",
-                    "name"=>"语文",
-                    "url"=>"https://www.baidu.com/"
-                    ],
-                    [
-                    "type"=>"view",
-                    "name"=>"数学",
-                    "url"=>"https://www.baidu.com/"
-                    ]
+                        [
+                        "type"=>"view",
+                        "name"=>"语文",
+                        "url"=>"https://www.baidu.com/"
+                        ],
+                        [
+                        "type"=>"view",
+                        "name"=>"数学",
+                        "url"=>"https://www.baidu.com/"
+                        ]
                     ]
                 ]
             ]
             ];
-
-            $Client = new Client();
-            $response = $Client ->request('POST',$url,[
-            'verify'=>false,
-            'body'=>json_encode($menu,JSON_UNESCAPED_UNICODE)
-            ]);
-            $data = $response->getBody();
-            echo $data;
-        // $menu = json_encode($menu,256);
-        // $res=$this->curl($url,'',$menu);
-        // dd($res);
         $Client = new Client();
         $response = $Client ->request('POST',$url,[
             'verify'=>false,
