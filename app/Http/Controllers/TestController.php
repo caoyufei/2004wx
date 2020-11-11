@@ -43,7 +43,7 @@ public function wxEvent()
             if($data->Event=="subscribe"){
                 $Content="关注成功";
                 $resurn=$this->nodeInfo($data,$Content);
-                return $resurn;
+                echo  $resurn;
             }
         }
 
@@ -91,6 +91,7 @@ public function token()
     $t=Redis::get($key);
     return $t;
 }
+//调用文本的接口
     public function nodeInfo($data,$Content)
     {
             $fromUserName=$data->ToUserName;
