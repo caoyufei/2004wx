@@ -23,3 +23,15 @@ Route::get('/test','TestController@wx');
 Route::get('/token','TestController@token');
 //推送事件
 Route::match(['get','post'],'/wx','TestController@wxEvent');
+
+Route::prefix('/wx')->group(function(){
+    Route::get('create_menu',"TestController@createMenu");
+});
+
+Route::get('/guzzle2',"TestController@guzzle2");
+
+//练习
+Route::prefix('test')->group(function(){
+    Route::get('/guzzle1',"Test1Controller@guzzle1");
+    Route::get('/guzzle2',"Test1Controller@guzzle2");
+});

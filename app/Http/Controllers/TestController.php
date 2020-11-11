@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Redis;
+use GuzzleHttp\Client;
 
 
 class TestController extends Controller
@@ -46,8 +47,7 @@ public function wxEvent()
             }
         }
         //回复天气
-        $arr=['天气','天气。','天气,'];
-        if($data->Content==$arr[array_rand($arr)]){
+        if($data->Content=='天气'){
             $Content = $this->getNew();
             $result = $this->nodeInfo($data,$Content);
             return $result;
@@ -56,13 +56,14 @@ public function wxEvent()
     }else{
         echo"";
 
-        //回复文本消息
+
     }
+    //回复文本消息
     if( $tmpStr == $signature ){
         $xml_data=file_get_contents('php://input');
         $data=simplexml_load_string($xml_data);
         if($data->MsgType == "text"){
-            $Content="你好    弟弟";
+            $Content="哈喽哈";
             $resurn=$this->nodeInfo($data,$Content);
             return $resurn;
         }
@@ -83,7 +84,7 @@ public function token()
         Redis::setex($key,7200,$token);
     }
     $t=Redis::get($key);
-    dd($t);
+    return $t;
 }
     public function nodeInfo($data,$Content)
     {
@@ -102,6 +103,9 @@ public function token()
 
             echo sprintf($temlate,$toUserName,$fromUserName,$time,$msgType,$Content);
     }
+
+
+    //回复天气
     public function getNew(){
         $key='3b478800e7184e6e9f6a0f5321086107';
         $url = "https://devapi.qweather.com/v7/weather/now?location=101010100&key=$key&gzip=n";
@@ -114,21 +118,46 @@ public function token()
         return $rea;
         //echo $red;
     }
-     //调用接口方法
-    public function curl($url,$header="",$content=[]){
-        $ch = curl_init(); //初始化CURL句柄
+
+
+
+    // public function guzzle2()
+    // {
+    //     $access_token=$this->token();
+    //     $type='image';
+    //     $url='https://api.weixin.qq.com/cgi-bin/media/upload?access_token='.$access_token.'&type='.$type;
+    //     echo $url;die;
+    //     $client=new Client();
+    //     $response=$client->request('POST',$url,[
+    //         'verify'=>false,
+    //         'multipart'=>[
+    //             [
+    //                 'name'=>'media',
+    //                 'contents'=>fopen('1.jpg','r'),
+    //             ]//上传的文件路径
+    //         ]
+    //     ]);
+    //     //发起请求并接受请求
+    //     $data=$response->getBody();
+    //     echo $data;
+    // }
+
+    //调用接口的方法
+    public function curl($url,$header="",$content=[])
+    {
+        $ch = curl_init(); //初始化CURL
         if(substr($url,0,5)=="https"){
             curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-            //curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST,2);
         }
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER,true); //字符串类型打印
-         curl_setopt($ch, CURLOPT_URL, $url); //设置请求的URL
-        if($header){
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,true); //字符串类型打印
+        curl_setopt($ch, CURLOPT_URL, $url); //设置请求的URL
+        if(!empty($header)){
             curl_setopt ($ch, CURLOPT_HTTPHEADER,$header);
         }
         if($content){
             curl_setopt ($ch, CURLOPT_POST,true);
-            curl_setopt ($ch, CURLOPT_POSTFIELDS,http_build_query($content));
+            curl_setopt ($ch, CURLOPT_POSTFIELDS,$content);
         }
         //执行
         $output = curl_exec($ch);
@@ -139,4 +168,71 @@ public function token()
         curl_close($ch);
         return $output;
     }
+
+
+    //菜单展示
+    public function createMenu()
+    {
+        $access_token=$this->token();
+        $url='https://api.weixin.qq.com/cgi-bin/menu/create?access_token='.$access_token;
+        $menu = [
+            "button"=> [
+                    [
+                    "type" =>"view",
+                    "name" =>"搜索",
+                    "url" => "https://www.baidu.com/"
+                    ],
+                        [
+                        "name"=>"娱乐",
+                        "sub_button"=>[
+                        [
+                        "type"=>"view",
+                        "name"=>"视频",
+                        "url"=>"https://www.baidu.com/"
+                        ],
+                        [
+                        "type"=>"view",
+                        "name"=>"音乐",
+                        "url"=>"https://www.baidu.com/"
+                        ]
+                        ]
+                        ],
+
+                [
+                "name"=>"学习",
+                    "sub_button"=>[
+                    [
+                    "type"=>"view",
+                    "name"=>"语文",
+                    "url"=>"https://www.baidu.com/"
+                    ],
+                    [
+                    "type"=>"view",
+                    "name"=>"数学",
+                    "url"=>"https://www.baidu.com/"
+                    ]
+                    ]
+                ]
+            ]
+            ];
+
+            $Client = new Client();
+            $response = $Client ->request('POST',$url,[
+            'verify'=>false,
+            'body'=>json_encode($menu,JSON_UNESCAPED_UNICODE)
+            ]);
+            $data = $response->getBody();
+            echo $data;
+        // $menu = json_encode($menu,256);
+        // $res=$this->curl($url,'',$menu);
+        // dd($res);
+        $Client = new Client();
+        $response = $Client ->request('POST',$url,[
+            'verify'=>false,
+            'body'=>json_encode($menu,JSON_UNESCAPED_UNICODE)
+            ]);
+        $data = $response->getBody();
+        echo $data;
+    }
+
 }
