@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Subscribe_info;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Redis;
@@ -41,9 +42,39 @@ public function wxEvent()
         //关注
         if($data->MsgType=="event"){
             if($data->Event=="subscribe"){
-                $Content="关注成功";
-                $resurn=$this->nodeInfo($data,$Content);
-                echo  $resurn;
+                $access_token=$this->token();
+                $openid=$data->FromUserName;
+                $url="https://api.weixin.qq.com/cgi-bin/user/info?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN";
+                $user_info=file_get_contents($url); //等于执行$url
+                $res=json_decode($user_info,true);
+                if(isset($res['errcode'])){
+                    file_put_contents('wx_event.log',$res['errcode']);
+                }else{
+                    $user_id=Subscribe_info::where('openid',$openid)->first();
+                    if($user_id){
+                        $user_id->subscribe=1;
+                        $user_id->save();
+                        $Content="感谢再次关注哈";
+                    }else{
+                        $res=[
+                            'subscribe'=>$res['subscribe'],
+                            'openid'=>$res['openid'],
+                            'nickname'=>$res['nickname'],
+                            'sex'=>$res['sex'],
+                            'city'=>$res['city'],
+                            'country'=>$res['country'],
+                            'province'=>$res['province'],
+                            'language'=>$res['province'],
+                            'headimgurl'=>$res['headimgurl'],
+                            'subscribe_time'=>$res['subscribe_time'],
+                            'subscribe_scene'=>$res['subscribe_scene']
+                        ];
+                            Subscribe_info::insert($res);
+                            $Content="欢迎关注";
+                            $resurn=$this->nodeInfo($data,$Content);
+                            echo  $resurn;
+                    }
+                }
             }
         }
 
