@@ -81,7 +81,7 @@ public function wxEvent()
         if($data->MsgType == "text"){
             $Content="哈喽哈";
             $resurn=$this->nodeInfo($data,$Content);
-            return $resurn;
+            echo  $resurn;
         }
     }
 }
