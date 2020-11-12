@@ -42,40 +42,10 @@ public function wxEvent()
         //关注
         if($data->MsgType=="event"){
             if($data->Event=="subscribe"){
-                $access_token=$this->token();
-                $openid=$data->FromUserName;
-                $url="https://api.weixin.qq.com/cgi-bin/user/info?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN";
-                $user_info=file_get_contents($url); //等于执行$url
-                $res=json_decode($user_info,true);
-                if(isset($res['errcode'])){
-                    file_put_contents('wx_event.log',$res['errcode']);
-                }else{
-                    $user_id=Subscribe_info::where('openid',$openid)->first();
-                    if($user_id){
-                        $user_id->subscribe=1;
-                        $user_id->save();
-                        $Content="感谢再次关注哈";
-                    }else{
-                        $res=[
-                            'subscribe'=>$res['subscribe'],
-                            'openid'=>$res['openid'],
-                            'nickname'=>$res['nickname'],
-                            'sex'=>$res['sex'],
-                            'city'=>$res['city'],
-                            'country'=>$res['country'],
-                            'province'=>$res['province'],
-                            'language'=>$res['province'],
-                            'headimgurl'=>$res['headimgurl'],
-                            'subscribe_time'=>$res['subscribe_time'],
-                            'subscribe_scene'=>$res['subscribe_scene']
-                        ];
-                            Subscribe_info::insert($res);
-                            $Content="欢迎关注";
+                            $Content="欢迎关注哦";
                             $resurn=$this->nodeInfo($data,$Content);
                             echo  $resurn;
-                    }
                 }
-            }
         }
 
 
@@ -90,18 +60,18 @@ public function wxEvent()
 
         echo "";
     }else{
-        $xml_data=file_get_contents("php://input");
+        // $xml_data=file_get_contents("php://input");
 
-        //记录日志
-        file_put_contents('wx_event.log',$xml_data);
+        // //记录日志
+        // file_put_contents('wx_event.log',$xml_data);
 
-        //2.把xml文本转化为数组或对象
-        $data=simplexml_load_string($xml_data);
+        // //2.把xml文本转化为数组或对象
+        // $data=simplexml_load_string($xml_data);
 
 
-        $Content="关注成功";
-        $resurn=$this->nodeInfo($data,$Content);
-        echo  $resurn;
+        // $Content="关注成功";
+        // $resurn=$this->nodeInfo($data,$Content);
+        // echo  $resurn;
 
 
     }
@@ -273,7 +243,5 @@ public function token()
     // public function iii(){
     // echo "ok";
     // }
-
-
 
 }
