@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Subscribe_info;
+use App\Models\Infromaction;
+use App\Models\Subscribe_user;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Redis;
 use GuzzleHttp\Client;
-
-
 class TestController extends Controller
 {
 //推送事件
@@ -25,85 +24,81 @@ public function wxEvent()
     $tmpStr = sha1( $tmpStr );
     $echostr=request()->get('echostr','');
     if(!empty($echostr)){
-        echo $echostr;//die;
+        echo $echostr;die;
     }
     if( $tmpStr == $signature ){
        //验证通过
         //1.接受数据
         $xml_data=file_get_contents("php://input");
-
         //记录日志
+        // echo $xml_data;die;
         file_put_contents('wx_event.log',$xml_data);
-
         //2.把xml文本转化为数组或对象
         $data=simplexml_load_string($xml_data);
-
         //判断接受消息的类型
         //关注
+        //dd($data);
+
         if($data->MsgType=="event"){
+            // echo 1111;die;
             if($data->Event=="subscribe"){
-                $access_token=$this->token();
                 $openid=$data->FromUserName;
-                $url="https://api.weixin.qq.com/cgi-bin/user/info?access_token='.$access_token.'&openid='.$openid.'&lang=zh_CN";
-                $user_info=file_get_contents($url); //等于执行$url
-                $res=json_decode($user_info,true);
-                if(isset($res['errcode'])){
-                    file_put_contents('wx_event.log',$res['errcode']);
-                }else{
-                    $user_id=Subscribe_info::where('openid',$openid)->first();
-                    if($user_id){
-                        $user_id->subscribe=1;
-                        $user_id->save();
-                        $Content="感谢再次关注哈";
+                $u=Subscribe_user::where('openid',$openid)->first();
+                if($u){
+                    $Content="欢迎您再次关注";
+                    $resurn=$this->nodeInfo($data,$Content);
+                    return   $resurn;
                     }else{
-                        $res=[
-                            'subscribe'=>$res['subscribe'],
-                            'openid'=>$res['openid'],
-                            'nickname'=>$res['nickname'],
-                            'sex'=>$res['sex'],
-                            'city'=>$res['city'],
-                            'country'=>$res['country'],
-                            'province'=>$res['province'],
-                            'language'=>$res['province'],
-                            'headimgurl'=>$res['headimgurl'],
-                            'subscribe_time'=>$res['subscribe_time'],
-                            'subscribe_scene'=>$res['subscribe_scene']
+                        $token=$this->token();
+                        $url='https://api.weixin.qq.com/cgi-bin/user/info?access_token='.$token.'&openid='.$openid.'&lang=zh_CN';
+                        $file=file_get_contents($url);
+                        $code=json_decode($file,true);//转化为json数据
+                        $data=[
+                            'openid'=>$code['openid'],
+                            'nickname'=>$code['nickname'],
+                            'sex'=>$code['sex'],
+                            'city'=>$code['city'],
+                            'country'=>$code['country'],
+                            'province'=>$code['province'],
+                            'headimgurl'=>$code['headimgurl'],
+                            'subscribe_time'=>$code['subscribe_time']
                         ];
-                            Subscribe_info::insert($res);
-                            $Content="欢迎关注";
-                            $resurn=$this->nodeInfo($data,$Content);
-                            echo  $resurn;
+                        $res=Subscribe_user::insertGetId($data);
+                        $Content="欢迎关注";
+                        $resurn=$this->nodeInfo($data,$Content);
+                        return $resurn;
                     }
                 }
-            }
         }
 
+        //获取图片信息
+        if($data->MsgType=='image'){
+            $a=$this->getImage();
+        }
 
+        //获取音频信息
+        if($data->MsgType=='voice'){
+            $a=$this->getVoice();
+        }
+
+        //获取视频信息
+        if($data->MsgType=='video'){
+            $a=$this->getVideo();
+        }
+
+        //获取文本信息
+        if($data->MsgType=='text'){
+            $a=$this->getText();
+        }
         //回复天气
         if($data->Content=='天气'){
             $Content = $this->getNew();
             $result = $this->nodeInfo($data,$Content);
-            echo  $result;
+            return $result;
         }
-
-
-
         echo "";
     }else{
-        $xml_data=file_get_contents("php://input");
-
-        //记录日志
-        file_put_contents('wx_event.log',$xml_data);
-
-        //2.把xml文本转化为数组或对象
-        $data=simplexml_load_string($xml_data);
-
-
-        $Content="关注成功";
-        $resurn=$this->nodeInfo($data,$Content);
-        echo  $resurn;
-
-
+        echo  "";
     }
     //回复文本消息
     if( $tmpStr == $signature ){
@@ -112,7 +107,7 @@ public function wxEvent()
         if($data->MsgType == "text"){
             $Content="哈喽哈";
             $resurn=$this->nodeInfo($data,$Content);
-            echo  $resurn;
+            return $resurn;
         }
     }
 }
@@ -166,29 +161,6 @@ public function token()
         //echo $red;
     }
 
-
-
-    // public function guzzle2()
-    // {
-    //     $access_token=$this->token();
-    //     $type='image';
-    //     $url='https://api.weixin.qq.com/cgi-bin/media/upload?access_token='.$access_token.'&type='.$type;
-    //     echo $url;die;
-    //     $client=new Client();
-    //     $response=$client->request('POST',$url,[
-    //         'verify'=>false,
-    //         'multipart'=>[
-    //             [
-    //                 'name'=>'media',
-    //                 'contents'=>fopen('1.jpg','r'),
-    //             ]//上传的文件路径
-    //         ]
-    //     ]);
-    //     //发起请求并接受请求
-    //     $data=$response->getBody();
-    //     echo $data;
-    // }
-
     //调用接口的方法
     public function curl($url,$header="",$content=[])
     {
@@ -215,8 +187,6 @@ public function token()
         curl_close($ch);
         return $output;
     }
-
-
     //菜单展示
     public function createMenu()
     {
@@ -270,10 +240,130 @@ public function token()
         $data = $response->getBody();
         echo $data;
     }
-    // public function iii(){
-    // echo "ok";
-    // }
+
+    //获取图片
+    public function getImage()
+    {
+        $token=$this->token();
+        $xml=file_get_contents("php://input");
+        $data=simplexml_load_string($xml);
+        // dd($data);
+        $media_id=$data->MediaId;
+        $url='https://api.weixin.qq.com/cgi-bin/media/get?access_token='.$token.'&media_id='.$media_id;
+        // dd($url);
+        $fileGet=file_get_contents($url);
+        //dd($fileGet);
+        $code=json_decode($fileGet,true);
+        $image=uniqid();
+        $path='img/'.$image.'.jpg';
+        $res=file_put_contents($path,$fileGet);
+        // if($res){
+        //     //echo "yes";die;
+        // }else{
+        //    // echo "no";die;
+        // }
+
+        $data=[
+            "FromUserName"=>$data->FromUserName,
+            "CreateTime"=>$data->CreateTime,
+            "MsgType"=>$data->MsgType,
+            "PicUrl" => $data->PicUrl,
+            "MediaId" => $data->MediaId
+        ];
+        $res1=Infromaction::insert($data);
+        // dd($res1);
+    }
+
+    //获取音频
+    public function getVoice()
+    {
+        $token=$this->token();
+        $xml=file_get_contents("php://input");
+        $data=simplexml_load_string($xml);
+        // dd($data);
+        $media_id=$data->MediaId;
+        $url='https://api.weixin.qq.com/cgi-bin/media/get?access_token='.$token.'&media_id='.$media_id;
+        // dd($url);
+        $fileGet=file_get_contents($url);
+        //dd($fileGet);
+        $code=json_decode($fileGet,true);
+        $voice=uniqid();
+        $path='voice/'.$voice.'.amr';
+        $res=file_put_contents($path,$fileGet);
+        // if($res){
+        //     //echo "yes";die;
+        // }else{
+        //    // echo "no";die;
+        // }
+
+        $data=[
+            "FromUserName" => $data->FromUserName,
+            "CreateTime" => $data->CreateTime,
+            "MsgType" => $data->MsgType,
+            "MediaId" => $data->MediaId,
+            "Format" => $data->Format,
+            "ThumbMediaId" =>$data->ThumbMediaId
+        ];
+        $res1=Infromaction::insert($data);
+        dd($res1);
+    }
 
 
+    //获取视频
+    public function getVideo()
+    {
+        $token=$this->token();
+        $xml=file_get_contents("php://input");
+        $data=simplexml_load_string($xml);
+        // dd($data);
+        $media_id=$data->MediaId;
+        $url='https://api.weixin.qq.com/cgi-bin/media/get?access_token='.$token.'&media_id='.$media_id;
+        // dd($url);
+        $fileGet=file_get_contents($url);
+        //dd($fileGet);
+        $code=json_decode($fileGet,true);
+        $video=uniqid();
+        $path='video/'.$video.'.mp4';
+        $res=file_put_contents($path,$fileGet);
+        // if($res){
+        //     //echo "yes";die;
+        // }else{
+        //    // echo "no";die;
+        // }
 
+        $data=[
+            "FromUserName" =>  $data->FromUserName,
+            "CreateTime" =>  $data->CreateTime,
+            "MsgType" =>  $data->MsgType,
+            "MediaId" =>  $data->MediaId,
+            "ThumbMediaId" => $data->ThumbMediaId
+        ];
+        $res1=Infromaction::insert($data);
+        // dd($res1);
+    }
+
+    //获取文本
+    public function getText()
+    {
+        $token=$this->token();
+        $xml=file_get_contents("php://input");
+        $data=simplexml_load_string($xml);
+        // dd($data);
+        $data=[
+            "FromUserName"=>$data->FromUserName,
+            "CreateTime"=>$data->CreateTime,
+            "MsgType"=>$data->MsgType,
+            "Content"=>$data->Content
+        ];
+        $res1=Infromaction::insert($data);
+        // dd($res1);
+    }
+
+    //签到
+    public function FunctionName()
+    {
+
+    }
+
+    //菜单获取天气
 }
