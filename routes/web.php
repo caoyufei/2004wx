@@ -34,9 +34,16 @@ Route::get('/guzzle2',"TestController@guzzle2");
 Route::prefix('test')->group(function(){
     Route::get('/guzzle1',"Test1Controller@guzzle1");
     Route::get('/guzzle2',"Test1Controller@guzzle2");
+    Route::get('/test',"Test1Controller@test");
+
 });
 Route::get('/getImage',"TestController@getImage");
 
-// Route::get('/iii',"TestController@iii");
-
+//小程序
+Route::prefix('/xcx')->group(function(){
+    Route::get('/login','Weixin\LoginXcxController@login');   //用户登录
+    Route::get('/goods','Weixin\LoginXcxController@goods');   //商品列表
+    Route::get('/detail','Weixin\LoginXcxController@detail'); //商品详情
+    Route::get('/addcart','Weixin\LoginXcxController@addcart');  //购物车
+});
 

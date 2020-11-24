@@ -13,6 +13,8 @@ class TestController extends Controller
 //推送事件
 public function wxEvent()
 {
+    echo 1;
+
     $signature = request()->get("signature");//["signature"];
     $timestamp = request()->get("timestamp");//$_GET["timestamp"];
     $nonce = request()->get("nonce");//  $_GET["nonce"];

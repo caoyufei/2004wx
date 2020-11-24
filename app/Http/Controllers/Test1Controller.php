@@ -55,5 +55,17 @@ class Test1Controller extends Controller
         $data=$response->getBody();
         echo $data;
     }
+    public function test()
+    {
+        // echo '<pre>';print_r($_GET);echo '</pre>';
+        // echo '<pre>';print_r($_POST);echo '</pre>';
+        $goods_info=[
+            'goods_id'=>12,
+            'goods_name'=>'毛衣',
+            'price'=>155
+        ];
+        //`return $goods_info;
+        echo json_encode($goods_info);
+    }
 
 }
